@@ -22,9 +22,9 @@ export function searchManga(manga: string) {
         console.log("mangaList: ", mangaListHtml.length);
 
         for (let mangaHtml of mangaListHtml) {
-            const mangaName = await mangaHtml.$eval('p.font-bold.truncate', el => el.textContent);
-            const mangaLink = await mangaHtml.evaluate(el => el.getAttribute('href'));
-            const similarityScore = similarity(mangaName, manga);
+            const mangaName: string = await mangaHtml.$eval('p.font-bold.truncate', el => el.textContent);
+            const mangaLink: string = await mangaHtml.evaluate(el => el.getAttribute('href'));
+            const similarityScore: number = similarity(mangaName, manga);
             console.log("mangaName: ", mangaName);
             console.log("mangaLink: ", mangaLink);
             console.log("similarityScore: ", similarityScore);
