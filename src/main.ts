@@ -1,10 +1,8 @@
-import {downloadImagesOfChapter} from "./scraper/onePunchMan";
+import {searchManga} from "./scraper/comick";
 
 class Main {
     static main() {
-        for (let i = 1; i <= 1; i++) {
-            downloadImagesOfChapter(i);
-        }
+        searchManga("one punch man")
     }
 }
 
