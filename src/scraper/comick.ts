@@ -4,8 +4,8 @@ import * as path from 'path';
 
 export function searchManga(manga: string) {
     (async () => {
-        // const browser = await puppeteer.launch({headless: 'new'});
-        const browser = await puppeteer.launch({headless: false});
+        const browser = await puppeteer.launch({headless: 'new'});
+        // const browser = await puppeteer.launch({headless: false});
         const page = await browser.newPage();
         //await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36');
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.3');
@@ -26,6 +26,7 @@ export function searchManga(manga: string) {
 
         //get the html content of the page
         const html = await page.content();
+        pbcopy(html);
         console.log("html: ", html);
 
 
@@ -33,4 +34,9 @@ export function searchManga(manga: string) {
         await browser.close();
 
     })();
+}
+
+function pbcopy(data: string) {
+    var proc = require('child_process').spawn('pbcopy');
+    proc.stdin.write(data); proc.stdin.end();
 }
