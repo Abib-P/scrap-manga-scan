@@ -18,10 +18,10 @@ export function searchManga(manga: string) {
         await page.waitForTimeout(2000);
 
 
-        const mangaList = await page.$$('div.pl-3.flex-1.overflow-hidden > a');
-        console.log("mangaList: ", mangaList.length);
+        const mangaListHtml = await page.$$('div.pl-3.flex-1.overflow-hidden > a');
+        console.log("mangaList: ", mangaListHtml.length);
 
-        for (let mangaHtml of mangaList) {
+        for (let mangaHtml of mangaListHtml) {
             const mangaName = await mangaHtml.$eval('p.font-bold.truncate', el => el.textContent);
             const mangaLink = await mangaHtml.evaluate(el => el.getAttribute('href'));
             const similarityScore = similarity(mangaName, manga);
