@@ -9,7 +9,7 @@ type Manga = {
 export function searchManga(manga: string) {
     (async () => {
         // const browser = await puppeteer.launch({headless: 'new'});
-        const browser = await puppeteer.launch({headless: 'new'});
+        const browser = await puppeteer.launch({headless: false});
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.3');
         await page.goto('https://www.comick.io/search', {waitUntil: 'networkidle2'});
@@ -42,14 +42,15 @@ export function searchManga(manga: string) {
 
         console.log("rightManga: ", rightManga);
 
-        await page.goto(`https://www.comick.io${rightManga.link}`, {waitUntil: 'networkidle2'});
+        await page.goto(`https://www.comick.io${rightManga.link}?lang=en&chap-order=1`, {waitUntil: 'networkidle2'});
 
         await page.waitForTimeout(2000);
 
-        //get current page url
-
         const currentUrl = page.url();
         console.log("currentUrl: ", currentUrl);
+
+        const html = await page.content();
+        pbcopy(html);
 
         await browser.close();
 
@@ -57,7 +58,7 @@ export function searchManga(manga: string) {
 }
 
 function pbcopy(data: string) {
-    var proc = require('child_process').spawn('pbcopy');
+    const proc = require('child_process').spawn('pbcopy');
     proc.stdin.write(data);
     proc.stdin.end();
 }
@@ -88,7 +89,7 @@ function editDistance(s1: string, s2: string): number {
                 costs[j] = j;
             else {
                 if (j > 0) {
-                    var newValue = costs[j - 1];
+                    let newValue = costs[j - 1];
                     if (s1.charAt(i - 1) != s2.charAt(j - 1))
                         newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
                     costs[j - 1] = lastValue;
