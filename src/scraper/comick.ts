@@ -1,9 +1,15 @@
 import puppeteer from "puppeteer";
 
+// make an object with the manga name and the link to the manga
+type Manga = {
+    name: string,
+    link: string
+}
+
 export function searchManga(manga: string) {
     (async () => {
         // const browser = await puppeteer.launch({headless: 'new'});
-        const browser = await puppeteer.launch({headless: false});
+        const browser = await puppeteer.launch({headless: 'new'});
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.3');
         await page.goto('https://www.comick.io/search', {waitUntil: 'networkidle2'});
@@ -21,15 +27,29 @@ export function searchManga(manga: string) {
         const mangaListHtml = await page.$$('div.pl-3.flex-1.overflow-hidden > a');
         console.log("mangaList: ", mangaListHtml.length);
 
+        let rightManga: Manga = {name: "", link: ""};
+        let actualScore: number = 0;
+
         for (let mangaHtml of mangaListHtml) {
             const mangaName: string = await mangaHtml.$eval('p.font-bold.truncate', el => el.textContent);
             const mangaLink: string = await mangaHtml.evaluate(el => el.getAttribute('href'));
             const similarityScore: number = similarity(mangaName, manga);
-            console.log("mangaName: ", mangaName);
-            console.log("mangaLink: ", mangaLink);
-            console.log("similarityScore: ", similarityScore);
-            console.log("----------------------");
+            if (similarityScore > actualScore) {
+                rightManga = {name: mangaName, link: mangaLink};
+                actualScore = similarityScore;
+            }
         }
+
+        console.log("rightManga: ", rightManga);
+
+        await page.goto(`https://www.comick.io${rightManga.link}`, {waitUntil: 'networkidle2'});
+
+        await page.waitForTimeout(2000);
+
+        //get current page url
+
+        const currentUrl = page.url();
+        console.log("currentUrl: ", currentUrl);
 
         await browser.close();
 
