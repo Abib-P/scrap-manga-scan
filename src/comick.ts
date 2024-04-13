@@ -26,7 +26,7 @@ class Manga {
     highlight: string = '';
 }
 
-export async function testApi() {
+export async function comick() {
     //testing api.comick.fun
     const url = "https://api.comick.fun";
     const query = '/v1.0/search/?page=1&limit=15&showall=false&q=demon slayer';

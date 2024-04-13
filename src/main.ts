@@ -1,10 +1,10 @@
 import {searchManga} from "./scraper/comick";
-import {testApi} from "./testApi";
+import {comick} from "./comick";
 
 class Main {
     static main() {
         //searchManga("one punch man")
-        testApi();
+        comick();
     }
 }
 
