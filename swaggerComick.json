@@ -1,0 +1,591 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Comick API",
+    "version": "1.0",
+    "description": "You have to use the domain https://api.comick.fun (Don't use the domain https://comick.io).\n Language code: https://en.wikipedia.org/wiki/Language_code, https://stackoverflow.com/questions/3191664/list-of-all-locales-and-their-short-codes"
+  },
+  "definitions": {
+    "def-0": {
+      "type": "object",
+      "properties": {
+        "fieldname": {
+          "type": "string"
+        },
+        "encoding": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "mimetype": {
+          "type": "string"
+        }
+      },
+      "title": "#mySharedSchema"
+    }
+  },
+  "paths": {
+    "/top": {
+      "get": {
+        "summary": "Get trending comics",
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "nullable": true,
+            "maximum": 40,
+            "required": false,
+            "in": "query",
+            "name": "gender"
+          },
+          {
+            "type": "integer",
+            "enum": [
+              180,
+              270,
+              360,
+              720
+            ],
+            "nullable": true,
+            "required": false,
+            "in": "query",
+            "name": "day"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "trending",
+              "newfollow",
+              "follow"
+            ],
+            "required": false,
+            "in": "query",
+            "name": "type"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "manga",
+                "manhwa",
+                "manhua"
+              ]
+            },
+            "description": "type manga, manhwa, manhua",
+            "required": false,
+            "in": "query",
+            "name": "comic_types"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "required": false,
+            "in": "query",
+            "name": "accept_mature_content"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "/category/": {
+      "get": {
+        "summary": "Categories/tags list",
+        "tags": [
+          "public"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/chapter/": {
+      "get": {
+        "summary": "Get latest chapters - homepage",
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Locale code https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/localization#locale-codes",
+            "required": false,
+            "in": "query",
+            "name": "lang"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "maximum": 200,
+            "required": false,
+            "in": "query",
+            "name": "page"
+          },
+          {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ],
+            "nullable": true,
+            "maximum": 40,
+            "required": false,
+            "in": "query",
+            "name": "gender"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "hot",
+              "new"
+            ],
+            "default": "hot",
+            "required": false,
+            "in": "query",
+            "name": "order"
+          },
+          {
+            "type": [
+              "integer",
+              "string"
+            ],
+            "required": false,
+            "in": "query",
+            "name": "device-memory"
+          },
+          {
+            "type": "boolean",
+            "description": "Tachiyomi is required for third party software.",
+            "required": false,
+            "in": "query",
+            "name": "tachiyomi"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "manga",
+                "manhwa",
+                "manhua"
+              ]
+            },
+            "description": "type manga, manhwa, manhua",
+            "required": false,
+            "in": "query",
+            "name": "type"
+          },
+          {
+            "type": "boolean",
+            "required": false,
+            "in": "query",
+            "name": "accept_erotic_content"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "schema": {
+              "type": "array"
+            }
+          }
+        }
+      }
+    },
+    "/genre/": {
+      "get": {
+        "summary": "Genre list",
+        "tags": [
+          "public"
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/chapter/{hid}/": {
+      "get": {
+        "summary": "Get a chapter's information",
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Tachiyomi is required for third party software.",
+            "required": false,
+            "in": "query",
+            "name": "tachiyomi"
+          },
+          {
+            "type": "string",
+            "required": true,
+            "in": "path",
+            "name": "hid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "/comic/{hid}/chapters": {
+      "get": {
+        "operationId": "1",
+        "summary": "Get chapters of a comic",
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "default": 60,
+            "required": false,
+            "in": "query",
+            "name": "limit"
+          },
+          {
+            "type": "integer",
+            "minimum": 0,
+            "required": false,
+            "in": "query",
+            "name": "page"
+          },
+          {
+            "type": "integer",
+            "description": "This is the default order, with the value is 0",
+            "required": false,
+            "in": "query",
+            "name": "chap-order"
+          },
+          {
+            "type": "integer",
+            "required": false,
+            "in": "query",
+            "name": "date-order"
+          },
+          {
+            "type": "string",
+            "description": "one of values: gb or fr or de, ..",
+            "required": false,
+            "in": "query",
+            "name": "lang"
+          },
+          {
+            "type": "string",
+            "required": false,
+            "in": "query",
+            "name": "chap"
+          },
+          {
+            "type": "string",
+            "required": true,
+            "in": "path",
+            "name": "hid"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "/comic/{slug}/": {
+      "get": {
+        "summary": "Get the comic's information",
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "required": false,
+            "in": "query",
+            "name": "t"
+          },
+          {
+            "type": "boolean",
+            "description": "Tachiyomi is required for third party software.",
+            "required": false,
+            "in": "query",
+            "name": "tachiyomi"
+          },
+          {
+            "type": "string",
+            "required": true,
+            "in": "path",
+            "name": "slug"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "/people/{slug}/": {
+      "get": {
+        "summary": "Get the author/artist's information",
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "required": true,
+            "in": "path",
+            "name": "slug"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "schema": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "/v1.0/search/": {
+      "get": {
+        "summary": "Search comics",
+        "tags": [
+          "public"
+        ],
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "the slugify of genre, ex: `genres=action&genres=romance`",
+            "required": false,
+            "in": "query",
+            "name": "genres"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "the slugify of genre",
+            "required": false,
+            "in": "query",
+            "name": "excludes"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "user",
+              "author",
+              "group",
+              "comic"
+            ],
+            "required": false,
+            "in": "query",
+            "name": "type"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "the slugify of tags, ex: `tags=male-protagonist&tags=family`",
+            "required": false,
+            "in": "query",
+            "name": "tags"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "1/shounen 2/shoujo 3/seinen 4/josei https://i.imgur.com/Rqy1Zxb.png, ex: `demographic=1&demographic=2`  *Can not be empty string*",
+            "required": false,
+            "in": "query",
+            "name": "demographic"
+          },
+          {
+            "type": "integer",
+            "default": 1,
+            "required": false,
+            "in": "query",
+            "name": "page"
+          },
+          {
+            "type": "integer",
+            "default": 15,
+            "required": false,
+            "in": "query",
+            "name": "limit"
+          },
+          {
+            "type": "integer",
+            "description": "substract days, ex: `time=120`, ~4 month",
+            "required": false,
+            "in": "query",
+            "name": "time"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Country code: kr, jp, cn,.. https://i.imgur.com/zQtStwR.png, ex: `country=kr&country=jp`",
+            "required": false,
+            "in": "query",
+            "name": "country"
+          },
+          {
+            "type": "integer",
+            "description": "mininum number of chapters.ex `minimum=50`",
+            "required": false,
+            "in": "query",
+            "name": "minimum"
+          },
+          {
+            "type": "integer",
+            "description": "from year, ex: `from=2010`",
+            "required": false,
+            "in": "query",
+            "name": "from"
+          },
+          {
+            "type": "integer",
+            "description": "to year, ex: `to=2021`",
+            "required": false,
+            "in": "query",
+            "name": "to"
+          },
+          {
+            "type": "integer",
+            "description": "1/Ongoing 2/Completed 3/Cancelled 4/Hiatus",
+            "required": false,
+            "in": "query",
+            "name": "status"
+          },
+          {
+            "type": "boolean",
+            "description": "**Tachiyomi is required for third party software.**",
+            "required": false,
+            "in": "query",
+            "name": "tachiyomi"
+          },
+          {
+            "type": "boolean",
+            "description": "completed translation",
+            "required": false,
+            "in": "query",
+            "name": "completed"
+          },
+          {
+            "type": "string",
+            "enum": [
+              "view",
+              "created_at",
+              "uploaded",
+              "rating",
+              "follow",
+              "user_follow_count",
+              ""
+            ],
+            "required": false,
+            "in": "query",
+            "name": "sort"
+          },
+          {
+            "type": "boolean",
+            "description": "Authentication is required.",
+            "required": false,
+            "in": "query",
+            "name": "exclude-mylist"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "Include comics without chapters.",
+            "required": false,
+            "in": "query",
+            "name": "showall"
+          },
+          {
+            "type": "string",
+            "description": "Search title with keywords, *ignore other parameters when q is a non-empty string*",
+            "transform": [
+              "trim"
+            ],
+            "required": false,
+            "in": "query",
+            "name": "q"
+          },
+          {
+            "type": "boolean",
+            "default": false,
+            "description": "Include alt title for show only.",
+            "required": false,
+            "in": "query",
+            "name": "t"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "schema": {
+              "type": "array"
+            }
+          }
+        }
+      }
+    }
+  },
+  "host": "api.comick.io",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ]
+}
