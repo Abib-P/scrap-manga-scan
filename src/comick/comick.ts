@@ -7,7 +7,7 @@ export class Comick implements Partner {
     private static readonly API_URL = "https://api.comick.fun";
 
     async search(mangaName: string): Promise<Manga[]> {
-        const query = '/v1.0/search/?page=1&limit=15&showall=false&q=' + mangaName;
+        const query = '/v1.0/search/?page=1&limit=8&showall=false&q=' + mangaName;
         const options = {
             method: 'GET',
             headers: {
