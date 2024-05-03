@@ -1,7 +1,7 @@
-import {Manga} from "../application/manga/manga";
 import {ComickManga} from "./comick_manga";
-import {MangaMapper} from "./manga_mapper";
-import {Partner} from "../application/partner/partner";
+import {ComickMapper} from "./comick_mapper";
+import {Manga} from "../core/manga/manga";
+import {Partner} from "../core/partner/partner";
 
 export class Comick implements Partner {
     private static readonly API_URL = "https://api.comick.fun";
@@ -21,7 +21,7 @@ export class Comick implements Partner {
                 return data as ComickManga[];
             })
             .then(mangas => {
-                return mangas.map(manga => MangaMapper.toManga(manga));
+                return mangas.map(manga => ComickMapper.toManga(manga));
             });
     }
 

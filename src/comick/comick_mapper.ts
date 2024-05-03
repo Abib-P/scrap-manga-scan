@@ -1,8 +1,8 @@
 import {ComickManga} from "./comick_manga";
-import {Manga} from "../application/manga/manga";
-import {PartnerInfo, Partners} from "../application/partner/partner_info";
+import {Manga} from "../core/manga/manga";
+import {PartnerInfo, Partners} from "../core/partner/partner_info";
 
-export class MangaMapper {
+export class ComickMapper {
     private static readonly MANGA_COVER_URL = "https://meo.comick.pictures/";
 
     static toManga(manga: ComickManga): Manga {
