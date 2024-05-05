@@ -1,5 +1,5 @@
 import {ComickManga} from "./comick_manga";
-import {ComickMapper} from "./comick_mapper";
+import {ComickMapper} from "./comick.mapper";
 import {Manga} from "../core/manga/manga";
 import {Partner} from "../core/partner/partner";
 
@@ -15,13 +15,15 @@ export class Comick implements Partner {
             },
         };
 
-        return await fetch( Comick.API_URL + query, options)
+        return await fetch(Comick.API_URL + query, options)
             .then(response => response.json())
             .then(data => {
                 return data as ComickManga[];
             })
             .then(mangas => {
-                return mangas.map(manga => ComickMapper.toManga(manga));
+                return mangas.sort(
+                    (a, b) => b.rating_count - a.rating_count
+                ).map(manga => ComickMapper.toManga(manga));
             });
     }
 
