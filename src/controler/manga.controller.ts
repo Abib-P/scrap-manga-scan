@@ -10,14 +10,16 @@ export class MangaController {
     @Get()
     async search(): Promise<MangaDto[]> {
         return await this.mangaService.search('one piece').then(
-            mangas => mangas.map(manga => new MangaDto(
-                {
-                    mangaId: manga.mangaId ? manga.mangaId.id : null,
-                    partnersInfo: manga.partnersInfo,
-                    MangaTitle: manga.MangaTitle,
-                    MangaCoverUrl: manga.MangaCoverUrl
-                }
-            ))
+            mangas => mangas.map(
+                manga => new MangaDto(
+                    {
+                        mangaId: manga.mangaId ? manga.mangaId.id : null,
+                        partnersInfo: manga.partnersInfo,
+                        MangaTitle: manga.MangaTitle,
+                        MangaCoverUrl: manga.MangaCoverUrl
+                    }
+                ),
+            ),
         );
     }
 }
