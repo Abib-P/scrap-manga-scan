@@ -5,7 +5,6 @@ import {MangaDto} from "./dto/manga.dto";
 @Controller('manga')
 export class MangaController {
     constructor(private readonly mangaService: MangaService) {
-        console.log("MangaController created!");
     }
 
     @Get()
@@ -13,7 +12,7 @@ export class MangaController {
         return await this.mangaService.search('one piece').then(
             mangas => mangas.map(manga => new MangaDto(
                 {
-                    mangaId: manga.mangaId.id,
+                    mangaId: manga.mangaId ? manga.mangaId.id : null,
                     partnersInfo: manga.partnersInfo,
                     MangaTitle: manga.MangaTitle,
                     MangaCoverUrl: manga.MangaCoverUrl
