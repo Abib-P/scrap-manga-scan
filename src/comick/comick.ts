@@ -1,10 +1,16 @@
 import {ComickManga} from "./comick_manga";
 import {ComickMapper} from "./comick.mapper";
-import {Manga} from "../core/manga/manga";
-import {Partner} from "../core/partner/partner";
+import {Manga} from "../common/manga/manga";
+import {Partner} from "../common/partner/partner";
+import {Injectable} from "@nestjs/common";
 
+@Injectable()
 export class Comick implements Partner {
     private static readonly API_URL = "https://api.comick.fun";
+
+    constructor() {
+        console.log("Comick created!");
+    }
 
     async search(mangaName: string): Promise<Manga[]> {
         const query = '/v1.0/search/?page=1&limit=8&showall=false&q=' + mangaName;

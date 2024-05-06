@@ -5,19 +5,19 @@ interface IManga {
     mangaId?: Id;
     partnersInfo: PartnerInfo;
     MangaTitle: string;
-    MangaCover: string;
+    MangaCoverUrl: string;
 }
 
 export class Manga {
     mangaId?: Id;
     partnersInfo: PartnerInfo;
     MangaTitle: string;
-    MangaCover: string;
+    MangaCoverUrl: string;
 
     constructor(manga: IManga) {
         this.mangaId = manga.mangaId;
         this.partnersInfo = manga.partnersInfo;
         this.MangaTitle = manga.MangaTitle;
-        this.MangaCover = manga.MangaCover;
+        this.MangaCoverUrl = manga.MangaCoverUrl;
     }
 }

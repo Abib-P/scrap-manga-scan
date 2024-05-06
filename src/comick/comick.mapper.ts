@@ -1,6 +1,6 @@
 import {ComickManga} from "./comick_manga";
-import {Manga} from "../core/manga/manga";
-import {PartnerInfo, Partners} from "../core/partner/partner_info";
+import {Manga} from "../common/manga/manga";
+import {PartnerInfo, Partners} from "../common/partner/partner_info";
 
 export class ComickMapper {
     private static readonly MANGA_COVER_URL = "https://meo.comick.pictures/";
@@ -13,7 +13,7 @@ export class ComickMapper {
                     partnerCode: manga.hid
                 }),
                 MangaTitle: manga.title,
-                MangaCover: this.MANGA_COVER_URL + manga.md_covers[0].b2key,
+                MangaCoverUrl: this.MANGA_COVER_URL + manga.md_covers[0].b2key,
             }
         );
     }
