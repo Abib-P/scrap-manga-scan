@@ -3,6 +3,7 @@ import {ComickMapper} from "./comick.mapper";
 import {Manga} from "../common/manga/manga";
 import {Partner} from "../common/partner/partner";
 import {Injectable} from "@nestjs/common";
+import { PartnerInfo } from "src/common/partner/partner_info";
 
 @Injectable()
 export class Comick implements Partner {
@@ -19,18 +20,24 @@ export class Comick implements Partner {
 
         return await fetch(Comick.API_URL + query, options)
             .then(response => response.json())
-            .then(data => {
-                return data as ComickManga[];
-            })
-            .then(mangas => {
-                return mangas.sort(
-                    (a, b) => b.rating_count - a.rating_count
-                ).map(manga => ComickMapper.toManga(manga));
-            });
+            .then(
+                data => {
+                    return data as ComickManga[];
+                },
+            ).then(
+                mangas => {
+                    return mangas.sort(
+                        (a, b) => b.rating_count - a.rating_count
+                    ).map(manga => ComickMapper.toManga(manga));
+                },
+            );
     }
 
-    async download(manga: Manga): Promise<Manga> {
-        //mettre une priorité sur le téléchargement de "Official"
+
+    async download(partnerInfo: PartnerInfo): Promise<Manga> {
+        //priorisé le group name "Official" si il existe sinon le premier
+        //ne pas prendre les chap=null
+
         throw new Error("Method not implemented.");
     }
 }
