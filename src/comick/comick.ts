@@ -3,7 +3,7 @@ import {ComickMapper} from "./comick.mapper";
 import {Manga} from "../common/manga/manga";
 import {Partner} from "../common/partner/partner";
 import {Injectable} from "@nestjs/common";
-import { PartnerInfo } from "src/common/partner/partner_info";
+import {PartnerInfo} from "src/common/partner/partner_info";
 
 @Injectable()
 export class Comick implements Partner {
@@ -37,6 +37,16 @@ export class Comick implements Partner {
     async download(partnerInfo: PartnerInfo): Promise<Manga> {
         //priorisé le group name "Official" si il existe sinon le premier
         //ne pas prendre les chap=null
+        //https://api.comick.fun/comic/CzcseUMi/chapters
+
+        const query = '/v1.0/comic/' + partnerInfo.partnerCode + '/chapters';
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+
 
         throw new Error("Method not implemented.");
     }
