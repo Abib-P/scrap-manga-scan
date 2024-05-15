@@ -1,4 +1,4 @@
-import {ComickManga} from "./comick_manga";
+import {ComickManga} from "./dto/manga/comick_manga";
 import {Manga} from "../common/manga/manga";
 import {PartnerInfo, Partners} from "../common/partner/partner_info";
 

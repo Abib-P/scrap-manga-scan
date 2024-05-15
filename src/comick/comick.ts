@@ -1,10 +1,10 @@
-import {ComickManga} from "./comick_manga";
+import {ComickManga} from "./dto/manga/comick_manga";
 import {ComickMapper} from "./comick.mapper";
 import {Manga} from "../common/manga/manga";
 import {Partner} from "../common/partner/partner";
 import {Injectable} from "@nestjs/common";
 import {PartnerInfo} from "src/common/partner/partner_info";
-import {ComickMangaChapters} from "./comick_manga_chapters";
+import {ComickMangaChapters} from "./dto/manga/comick_manga_chapters";
 
 @Injectable()
 export class Comick implements Partner {
@@ -98,13 +98,8 @@ export class Comick implements Partner {
             actualChapter += 100;
         }
 
-        console.log(comickMangaChapters);
-
-        return null;
-
         for (let chapterNumber in comickMangaChapters) {
             let chapter = comickMangaChapters[chapterNumber];
-            //https://api.comick.fun/chapter/wNJzw/
             const query = '/chapter/' + chapter.hid + '/';
             const options = {
                 method: 'GET',
