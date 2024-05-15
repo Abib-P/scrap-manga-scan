@@ -11,14 +11,13 @@ export class Comick implements Partner {
     private static readonly API_URL = "https://api.comick.fun";
 
     async search(mangaName: string): Promise<Manga[]> {
-        //create variable arguments
         let UrlArguments = {
             page: '1',
             limit: '8',
             showall: 'false',
             q: mangaName,
         };
-        //const query = '/v1.0/search/?page=1&limit=8&showall=false&q=' + mangaName;
+
         const query = '/v1.0/search/?' + new URLSearchParams(UrlArguments).toString();
         const options = {
             method: 'GET',
@@ -44,10 +43,6 @@ export class Comick implements Partner {
 
 
     async download(partnerInfo: PartnerInfo): Promise<Manga> {
-        //priorisé le group name "Official" si il existe sinon le premier
-        //ne pas prendre les chap=null
-        //https://api.comick.fun/comic/CzcseUMi/chapters
-
         let UrlArguments = {
             page: '1',
             lang: 'en',
@@ -55,8 +50,6 @@ export class Comick implements Partner {
             'chap-order': '1',
         };
 
-
-        const query =  '/comic/' + partnerInfo.partnerCode + '/chapters?' + new URLSearchParams(UrlArguments).toString();
         const options = {
             method: 'GET',
             headers: {
@@ -64,22 +57,70 @@ export class Comick implements Partner {
             },
         };
 
-        console.log(Comick.API_URL + query)
+        let actualChapter = 0;
+        let totalNumberOfChapters = 1;
 
-        let comickMangaChapters = await fetch(Comick.API_URL + query, options)
-            .then(response => response.json())
-            .then(
-                data => {
-                    return data as ComickMangaChapters;
+        let comickMangaChapters = {};
+
+        while (actualChapter < totalNumberOfChapters) {
+
+            UrlArguments.page = (actualChapter / 100 + 1).toString();
+            const query = '/comic/' + partnerInfo.partnerCode + '/chapters?' + new URLSearchParams(UrlArguments).toString();
+
+            await fetch(Comick.API_URL + query, options)
+                .then(response => response.json())
+                .then(
+                    data => {
+                        return data as ComickMangaChapters;
+                    },
+                ).then(
+                    mangaChapters => {
+                        totalNumberOfChapters = mangaChapters.total;
+                        return mangaChapters.chapters.filter(chapter => chapter.chap !== null);
+                    },
+                )
+                .then(
+                    mangaChapters => {
+                        mangaChapters.forEach(
+                            chapter => {
+                                if (comickMangaChapters[+chapter.chap] === undefined) {
+                                    comickMangaChapters[+chapter.chap] = chapter;
+                                } else {
+                                    if (chapter.group_name.includes("Official")) {
+                                        comickMangaChapters[+chapter.chap] = chapter;
+                                    }
+                                }
+                            }
+                        )
+                    },
+                )
+
+            actualChapter += 100;
+        }
+
+        console.log(comickMangaChapters);
+
+        return null;
+
+        for (let chapterNumber in comickMangaChapters) {
+            let chapter = comickMangaChapters[chapterNumber];
+            //https://api.comick.fun/chapter/wNJzw/
+            const query = '/chapter/' + chapter.hid + '/';
+            const options = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
                 },
-            ).then(
-                mangaChapters => {
-                    return mangaChapters.chapters.filter(chapter => chapter.chap !== null);
-                },
-            );
+            };
 
-        console.log(comickMangaChapters)
-
+            let comickChapter = await fetch(Comick.API_URL + query, options)
+                .then(response => response.json())
+                .then(
+                    data => {
+                        return data;
+                    },
+                )
+        }
 
         return null;
     }
