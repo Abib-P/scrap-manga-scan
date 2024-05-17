@@ -25,3 +25,4 @@ export class ComickManga {
     md_covers: { w: number; h: number; b2key: string }[] = [];
     highlight: string = '';
 }
+
