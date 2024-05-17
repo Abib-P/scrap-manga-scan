@@ -6,6 +6,8 @@ import {Injectable} from "@nestjs/common";
 import {PartnerInfo} from "src/common/partner/partner_info";
 import {ComickMangaChapters} from "./dto/manga/comick_manga_chapters";
 import {ComickChapter} from "./dto/chapter/comick_chapter";
+import * as fs from "node:fs";
+import * as archiver from 'archiver';
 
 @Injectable()
 export class Comick implements Partner {
@@ -113,7 +115,9 @@ export class Comick implements Partner {
             };
 
             await fetch(Comick.API_URL + query, options)
-                .then(response => response.json())
+                .then(response =>
+                    response.json()
+                )
                 .then(
                     data => {
                         return data as ComickChapter;
@@ -125,12 +129,41 @@ export class Comick implements Partner {
                     },
                 );
 
+            await new Promise(r => setTimeout(r, 100));
         }
 
-        //download images
+        if (!fs.existsSync('./downloads')) {
+            fs.mkdirSync('./downloads');
+        }
 
+        for (let chapterNumber in comickMangaChapters) {
+            let chapter = comickMangaChapters[chapterNumber];
+            let chapterImages = chaptersImagesMap.get(chapter.chap);
 
+            if (!fs.existsSync('./downloads/' + chapter.chap)) {
+                fs.mkdirSync('./downloads/' + chapter.chap);
+            }
 
-        return null;
+            for (let image of chapterImages) {
+                const imageResponse = await fetch(image);
+                const buffer = await imageResponse.arrayBuffer();
+                const test = Buffer.from(buffer).toString("base64")
+                fs.writeFileSync('./downloads/' + chapter.chap + '/' + image.split('/').pop(), test, 'base64');
+            }
+
+            const output = fs.createWriteStream('./downloads/' + chapter.chap + '.cbz');
+            const archive = archiver('zip', {
+                zlib: {level: 9}
+            });
+            archive.pipe(output);
+            archive.directory('./downloads/' + chapter.chap, false);
+            await archive.finalize();
+            output.close()
+            await new Promise(r => setTimeout(r, 100));
+
+            fs.rmdirSync('./downloads/' + chapter.chap, {recursive: true});
+        }
+
+        return null
     }
 }
