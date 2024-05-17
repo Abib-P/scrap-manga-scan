@@ -5,10 +5,12 @@ import {Partner} from "../common/partner/partner";
 import {Injectable} from "@nestjs/common";
 import {PartnerInfo} from "src/common/partner/partner_info";
 import {ComickMangaChapters} from "./dto/manga/comick_manga_chapters";
+import {ComickChapter} from "./dto/chapter/comick_chapter";
 
 @Injectable()
 export class Comick implements Partner {
     private static readonly API_URL = "https://api.comick.fun";
+    private static readonly IMAGE_URL = "https://meo3.comick.pictures/";
 
     async search(mangaName: string): Promise<Manga[]> {
         let UrlArguments = {
@@ -98,6 +100,8 @@ export class Comick implements Partner {
             actualChapter += 100;
         }
 
+        let chaptersImagesMap = new Map<string, string[]>();
+
         for (let chapterNumber in comickMangaChapters) {
             let chapter = comickMangaChapters[chapterNumber];
             const query = '/chapter/' + chapter.hid + '/';
@@ -108,14 +112,24 @@ export class Comick implements Partner {
                 },
             };
 
-            let comickChapter = await fetch(Comick.API_URL + query, options)
+            await fetch(Comick.API_URL + query, options)
                 .then(response => response.json())
                 .then(
                     data => {
-                        return data;
+                        return data as ComickChapter;
                     },
                 )
+                .then(
+                    chapter => {
+                        chaptersImagesMap.set(chapter.chapter.chap, chapter.chapter.md_images.map(image => Comick.IMAGE_URL + image.b2key));
+                    },
+                );
+
         }
+
+        //download images
+
+
 
         return null;
     }
