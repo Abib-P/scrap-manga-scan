@@ -65,6 +65,7 @@ export class Comick implements Partner {
         let totalNumberOfChapters = 1;
 
         let comickMangaChapters = {};
+        let mangaName: string = "";
 
         while (actualChapter < totalNumberOfChapters) {
 
@@ -125,6 +126,9 @@ export class Comick implements Partner {
                 )
                 .then(
                     chapter => {
+                        if (mangaName === "") {
+                            mangaName = chapter.chapter.md_comics.title
+                        }
                         chaptersImagesMap.set(chapter.chapter.chap, chapter.chapter.md_images.map(image => Comick.IMAGE_URL + image.b2key));
                     },
                 );
@@ -140,28 +144,35 @@ export class Comick implements Partner {
             let chapter = comickMangaChapters[chapterNumber];
             let chapterImages = chaptersImagesMap.get(chapter.chap);
 
-            if (!fs.existsSync('./downloads/' + chapter.chap)) {
-                fs.mkdirSync('./downloads/' + chapter.chap);
+            if (!fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap)) {
+                if (!fs.existsSync('./downloads/' + mangaName)) {
+                    fs.mkdirSync('./downloads/' + mangaName);
+                }
+                fs.mkdirSync('./downloads/' + mangaName + '/' + chapter.chap);
             }
 
             for (let image of chapterImages) {
                 const imageResponse = await fetch(image);
                 const buffer = await imageResponse.arrayBuffer();
                 const test = Buffer.from(buffer).toString("base64")
-                fs.writeFileSync('./downloads/' + chapter.chap + '/' + image.split('/').pop(), test, 'base64');
+                fs.writeFileSync('./downloads/' + mangaName + '/' + chapter.chap + '/' + image.split('/').pop(), test, 'base64');
             }
 
-            const output = fs.createWriteStream('./downloads/' + chapter.chap + '.cbz');
+            const output = fs.createWriteStream('./downloads/' + mangaName + '/' + chapter.chap + '.cbz');
             const archive = archiver('zip', {
                 zlib: {level: 9}
             });
             archive.pipe(output);
-            archive.directory('./downloads/' + chapter.chap, false);
+            archive.directory('./downloads/' + mangaName + '/' + chapter.chap, false);
             await archive.finalize();
             output.close()
             await new Promise(r => setTimeout(r, 100));
 
-            fs.rmdirSync('./downloads/' + chapter.chap, {recursive: true});
+            fs.rm('./downloads/' + mangaName + '/' + chapter.chap, {recursive: true}, (err) => {
+                if (err) {
+                    console.error(err);
+                }
+            })
         }
 
         return null
