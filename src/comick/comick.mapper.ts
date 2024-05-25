@@ -10,7 +10,7 @@ export class ComickMapper {
                 mangaId: undefined,
                 partnersInfo: new PartnerInfo({
                     partnerId: Partners.COMICK,
-                    partnerCode: manga.hid
+                    partnerCode: manga.slug,
                 }),
                 MangaTitle: manga.title,
                 MangaCoverUrl: this.MANGA_COVER_URL + manga.md_covers[0].b2key,
