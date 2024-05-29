@@ -79,14 +79,12 @@ export class Comick implements Partner {
                 },
             )
 
-
         let actualChapter = 0;
         let totalNumberOfChapters = 1;
 
+        let comickMangaChapters = {};
+
         while (actualChapter < totalNumberOfChapters) {
-
-            let comickMangaChapters = {};
-
 
             UrlArguments.page = (actualChapter / 100 + 1).toString();
             const query = '/comic/' + mangaHid + '/chapters?' + new URLSearchParams(UrlArguments).toString();
@@ -108,7 +106,14 @@ export class Comick implements Partner {
                         mangaChapters.forEach(
                             chapter => {
                                 if (chapter.group_name) {
-                                    if (comickMangaChapters[+chapter.chap] === undefined && chapter.group_name.includes("Official")) {
+                                    if (chapter.group_name.includes("Official")) {
+                                        comickMangaChapters[+chapter.chap] = chapter;
+                                    }
+                                    if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.')) {
+                                        comickMangaChapters[+chapter.chap] = chapter;
+                                    }
+                                } else {
+                                    if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.')) {
                                         comickMangaChapters[+chapter.chap] = chapter;
                                     }
                                 }
@@ -117,88 +122,107 @@ export class Comick implements Partner {
                     },
                 )
 
-            let chaptersImagesMap = new Map<string, string[]>();
+            actualChapter += 100;
+            await new Promise(r => setTimeout(r, 250));
+        }
 
-            let actualChapterImage = 0
+        let chaptersImagesMap = new Map<string, string[]>();
 
-            for (let chapterNumber in comickMangaChapters) {
-                let chapter = comickMangaChapters[chapterNumber];
-                const query = '/chapter/' + chapter.hid + '/';
-                const options = {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
+        let actualChapterImage = 0
 
-                if (fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap + '.cbz')) {
-                    console.log('Already downloaded: ' + chapter.chap)
-                    continue
-                }
+        const ignore = fs.existsSync('./downloads/' + mangaName + '/ignore.txt') ? fs.readFileSync('./downloads/' + mangaName + '/ignore.txt').toString().split('\n') : []
+        console.log('Ignore: ' + ignore)
 
-                await fetch(Comick.API_URL + query, options)
-                    .then(response =>
-                        response.json()
-                    )
-                    .then(
-                        data => {
-                            return data as ComickChapter;
-                        },
-                    )
-                    .then(
-                        chapter => {
-                            if (mangaName === "") {
-                                mangaName = chapter.chapter.md_comics.title
-                            }
-                            chaptersImagesMap.set(chapter.chapter.chap, chapter.chapter.md_images.map(image => Comick.IMAGE_URL + image.b2key));
-                        },
-                    );
+        for (let chapterNumber in comickMangaChapters) {
+            let chapter = comickMangaChapters[chapterNumber];
+            const query = '/chapter/' + chapter.hid + '/';
+            const options = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
 
-                await new Promise(r => setTimeout(r, 100));
-                console.log('Download: ' + chapterNumber)
+            if (ignore.includes(chapter.chap)) {
+                console.log('Chapter ignored: ' + chapter.chap)
+                continue
+            }
 
-                if (!fs.existsSync('./downloads')) {
-                    fs.mkdirSync('./downloads');
-                }
+            if (fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap + '_' + chapter.hid + '.cbz')) {
+                console.log('Already downloaded: ' + chapter.chap)
+                continue
+            }
 
-                let chapterImages = chaptersImagesMap.get(chapter.chap);
-
-                if (!fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap)) {
-                    if (!fs.existsSync('./downloads/' + mangaName)) {
-                        fs.mkdirSync('./downloads/' + mangaName);
-                    }
-                    fs.mkdirSync('./downloads/' + mangaName + '/' + chapter.chap);
-                }
-
-                for (let image of chapterImages) {
-                    const imageResponse = await fetch(image);
-                    const buffer = await imageResponse.arrayBuffer();
-                    const test = Buffer.from(buffer).toString("base64")
-                    fs.writeFileSync('./downloads/' + mangaName + '/' + chapter.chap + '/' + image.split('/').pop(), test, 'base64');
-                }
-
-                const output = fs.createWriteStream('./downloads/' + mangaName + '/' + chapter.chap + '.cbz');
-                const archive = archiver('zip', {
-                    zlib: {level: 9}
-                });
-                archive.pipe(output);
-                archive.directory('./downloads/' + mangaName + '/' + chapter.chap, false);
-                await archive.finalize();
-                output.close()
-                await new Promise(r => setTimeout(r, 250));
-
-                fs.rm('./downloads/' + mangaName + '/' + chapter.chap, {recursive: true}, (err) => {
-                    if (err) {
-                        console.error(err);
-                    }
-                })
-
-                if (actualChapterImage > 100) {
-                    await new Promise(r => setTimeout(r, 10000))
-                    actualChapterImage = 0
+            let regex = new RegExp(chapter.chap + '_[a-zA-Z0-9]+.cbz');
+            let files = fs.readdirSync('./downloads/' + mangaName);
+            for (let file of files) {
+                if (regex.test(file)) {
+                    fs.rmSync('./downloads/' + mangaName + '/' + file);
+                    console.log('Deleted old version: ' + file)
                 }
             }
-            actualChapter += 100;
+
+            await fetch(Comick.API_URL + query, options)
+                .then(response =>
+                    response.json()
+                )
+                .then(
+                    data => {
+                        return data as ComickChapter;
+                    },
+                )
+                .then(
+                    chapter => {
+                        if (mangaName === "") {
+                            mangaName = chapter.chapter.md_comics.title
+                        }
+                        chaptersImagesMap.set(chapter.chapter.chap, chapter.chapter.md_images.map(image => Comick.IMAGE_URL + image.b2key));
+                    },
+                );
+
+            await new Promise(r => setTimeout(r, 100));
+            console.log('Download: ' + chapterNumber)
+
+            if (!fs.existsSync('./downloads')) {
+                fs.mkdirSync('./downloads');
+            }
+
+            let chapterImages = chaptersImagesMap.get(chapter.chap);
+
+            if (!fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap)) {
+                if (!fs.existsSync('./downloads/' + mangaName)) {
+                    fs.mkdirSync('./downloads/' + mangaName);
+                }
+                fs.mkdirSync('./downloads/' + mangaName + '/' + chapter.chap);
+            }
+
+            for (let image of chapterImages) {
+                const imageResponse = await fetch(image);
+                const buffer = await imageResponse.arrayBuffer();
+                const test = Buffer.from(buffer).toString("base64")
+                fs.writeFileSync('./downloads/' + mangaName + '/' + chapter.chap + '/' + image.split('/').pop(), test, 'base64');
+            }
+
+            const output = fs.createWriteStream('./downloads/' + mangaName + '/' + chapter.chap + '_' + chapter.hid + '.cbz');
+            const archive = archiver('zip', {
+                zlib: {level: 9}
+            });
+            archive.pipe(output);
+            archive.directory('./downloads/' + mangaName + '/' + chapter.chap, false);
+            await archive.finalize();
+            output.close()
+            await new Promise(r => setTimeout(r, 250));
+
+            fs.rm('./downloads/' + mangaName + '/' + chapter.chap, {recursive: true}, (err) => {
+                if (err) {
+                    console.error(err);
+                }
+            })
+
+            if (actualChapterImage > 100) {
+                await new Promise(r => setTimeout(r, 10000))
+                actualChapterImage = 0
+            }
         }
         return null
     }
