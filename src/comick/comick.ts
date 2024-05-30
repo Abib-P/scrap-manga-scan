@@ -84,6 +84,22 @@ export class Comick implements Partner {
 
         let comickMangaChapters = {};
 
+        if (!fs.existsSync('./downloads/' + mangaName)) {
+            if (!fs.existsSync('./downloads')) {
+                fs.mkdirSync('./downloads');
+            }
+            fs.mkdirSync('./downloads/' + mangaName);
+        }
+
+        if (fs.existsSync('./downloads/' + mangaName + '/partnersInfo.json')) {
+            let partnersInfo = JSON.parse(fs.readFileSync('./downloads/' + mangaName + '/partnersInfo.json').toString());
+            if (partnersInfo.partnerId !== partnerInfo.partnerId || partnersInfo.partnerCode !== partnerInfo.partnerCode || partnersInfo.mangaName !== mangaName) {
+                throw new Error('Partner info mismatch');
+            }
+        } else {
+            fs.writeFileSync('./downloads/' + mangaName + '/partnersInfo.json', JSON.stringify({partnerId: partnerInfo.partnerId, partnerCode: partnerInfo.partnerCode, mangaName: mangaName}));
+        }
+
         while (actualChapter < totalNumberOfChapters) {
 
             UrlArguments.page = (actualChapter / 100 + 1).toString();
@@ -125,7 +141,6 @@ export class Comick implements Partner {
         let chaptersImagesMap = new Map<string, string[]>();
 
         const ignore = fs.existsSync('./downloads/' + mangaName + '/ignore.txt') ? fs.readFileSync('./downloads/' + mangaName + '/ignore.txt').toString().split('\n') : []
-        console.log('Ignore: ' + ignore)
 
         for (let chapterNumber in comickMangaChapters) {
             let chapter = comickMangaChapters[chapterNumber];
@@ -143,7 +158,6 @@ export class Comick implements Partner {
             }
 
             if (fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap + '_' + chapter.hid + '.cbz')) {
-                console.log('Already downloaded: ' + chapter.chap)
                 continue
             }
 
@@ -177,18 +191,11 @@ export class Comick implements Partner {
                 );
 
             await new Promise(r => setTimeout(r, 100));
-            console.log('Download: ' + chapterNumber)
-
-            if (!fs.existsSync('./downloads')) {
-                fs.mkdirSync('./downloads');
-            }
+            console.log('Downloading: ' + chapterNumber)
 
             let chapterImages = chaptersImagesMap.get(chapter.chap);
 
             if (!fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap)) {
-                if (!fs.existsSync('./downloads/' + mangaName)) {
-                    fs.mkdirSync('./downloads/' + mangaName);
-                }
                 fs.mkdirSync('./downloads/' + mangaName + '/' + chapter.chap);
             }
 
