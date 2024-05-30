@@ -97,7 +97,11 @@ export class Comick implements Partner {
                 throw new Error('Partner info mismatch');
             }
         } else {
-            fs.writeFileSync('./downloads/' + mangaName + '/partnersInfo.json', JSON.stringify({partnerId: partnerInfo.partnerId, partnerCode: partnerInfo.partnerCode, mangaName: mangaName}));
+            fs.writeFileSync('./downloads/' + mangaName + '/partnersInfo.json', JSON.stringify({
+                partnerId: partnerInfo.partnerId,
+                partnerCode: partnerInfo.partnerCode,
+                mangaName: mangaName
+            }));
         }
 
         while (actualChapter < totalNumberOfChapters) {
@@ -161,7 +165,7 @@ export class Comick implements Partner {
                 continue
             }
 
-            if (fs.existsSync('./downloads/' + mangaName )) {
+            if (fs.existsSync('./downloads/' + mangaName)) {
                 let regex = new RegExp(chapter.chap + '_[a-zA-Z0-9]+.cbz');
                 let files = fs.readdirSync('./downloads/' + mangaName);
                 for (let file of files) {
