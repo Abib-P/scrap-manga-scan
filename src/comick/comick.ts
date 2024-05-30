@@ -109,11 +109,7 @@ export class Comick implements Partner {
                                     if (chapter.group_name.includes("Official")) {
                                         comickMangaChapters[+chapter.chap] = chapter;
                                     }
-                                    if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.')) {
-                                        comickMangaChapters[+chapter.chap] = chapter;
-                                    }
-                                } else {
-                                    if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.')) {
+                                    if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
                                         comickMangaChapters[+chapter.chap] = chapter;
                                     }
                                 }
@@ -127,8 +123,6 @@ export class Comick implements Partner {
         }
 
         let chaptersImagesMap = new Map<string, string[]>();
-
-        let actualChapterImage = 0
 
         const ignore = fs.existsSync('./downloads/' + mangaName + '/ignore.txt') ? fs.readFileSync('./downloads/' + mangaName + '/ignore.txt').toString().split('\n') : []
         console.log('Ignore: ' + ignore)
@@ -153,12 +147,14 @@ export class Comick implements Partner {
                 continue
             }
 
-            let regex = new RegExp(chapter.chap + '_[a-zA-Z0-9]+.cbz');
-            let files = fs.readdirSync('./downloads/' + mangaName);
-            for (let file of files) {
-                if (regex.test(file)) {
-                    fs.rmSync('./downloads/' + mangaName + '/' + file);
-                    console.log('Deleted old version: ' + file)
+            if (fs.existsSync('./downloads/' + mangaName )) {
+                let regex = new RegExp(chapter.chap + '_[a-zA-Z0-9]+.cbz');
+                let files = fs.readdirSync('./downloads/' + mangaName);
+                for (let file of files) {
+                    if (regex.test(file)) {
+                        fs.rmSync('./downloads/' + mangaName + '/' + file);
+                        console.log('Deleted old version: ' + file)
+                    }
                 }
             }
 
@@ -218,11 +214,6 @@ export class Comick implements Partner {
                     console.error(err);
                 }
             })
-
-            if (actualChapterImage > 100) {
-                await new Promise(r => setTimeout(r, 10000))
-                actualChapterImage = 0
-            }
         }
         return null
     }
