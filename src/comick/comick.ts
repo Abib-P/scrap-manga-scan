@@ -79,6 +79,8 @@ export class Comick implements Partner {
                 },
             )
 
+        mangaName = mangaName.replace(/\//g, ' ');
+
         console.log('Downloading: ' + mangaName)
 
         let actualChapter = 0;
