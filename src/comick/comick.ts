@@ -79,6 +79,8 @@ export class Comick implements Partner {
                 },
             )
 
+        console.log('Downloading: ' + mangaName)
+
         let actualChapter = 0;
         let totalNumberOfChapters = 1;
 
@@ -129,7 +131,7 @@ export class Comick implements Partner {
                                     if (chapter.group_name.includes("Official")) {
                                         comickMangaChapters[+chapter.chap] = chapter;
                                     }
-                                    if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
+                                    else if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
                                         comickMangaChapters[+chapter.chap] = chapter;
                                     }
                                 }
@@ -157,7 +159,7 @@ export class Comick implements Partner {
             };
 
             if (ignore.includes(chapter.chap)) {
-                console.log('Chapter ignored: ' + chapter.chap)
+                console.log(mangaName + ' : chapter ' + chapter.chap + ' is ignored')
                 continue
             }
 
@@ -166,7 +168,7 @@ export class Comick implements Partner {
             }
 
             if (fs.existsSync('./downloads/' + mangaName)) {
-                let regex = new RegExp(chapter.chap + '_[a-zA-Z0-9]+.cbz');
+                let regex = new RegExp('^' + chapter.chap + '_[a-zA-Z0-9]+\.cbz$');
                 let files = fs.readdirSync('./downloads/' + mangaName);
                 for (let file of files) {
                     if (regex.test(file)) {
@@ -226,6 +228,22 @@ export class Comick implements Partner {
                 }
             })
         }
+        return null
+    }
+
+    async updateAll(): Promise<void> {
+        for (let mangaName of fs.readdirSync('./downloads')) {
+            if (!fs.existsSync('./downloads/' + mangaName + '/partnersInfo.json')) {
+                continue
+            }
+            let partnersInfo = JSON.parse(fs.readFileSync('./downloads/' + mangaName + '/partnersInfo.json').toString());
+            await this.download(new PartnerInfo({
+                partnerId: partnersInfo.partnerId,
+                partnerCode: partnersInfo.partnerCode
+            }))
+        }
+
+        console.log('All mangas updated')
         return null
     }
 }

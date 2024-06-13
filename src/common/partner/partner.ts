@@ -5,4 +5,6 @@ export abstract class Partner {
     abstract search(mangaName: string): Promise<Manga[]>;
 
     abstract download(partnerInfo: PartnerInfo): Promise<Manga>;
+
+    abstract updateAll(): Promise<void>;
 }

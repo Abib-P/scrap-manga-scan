@@ -15,4 +15,8 @@ export class MangaService {
     async download(partnerInfo: PartnerInfo): Promise<Manga> {
         return await this.partner.download(partnerInfo);
     }
+
+    async updateAll() {
+        return await this.partner.updateAll();
+    }
 }

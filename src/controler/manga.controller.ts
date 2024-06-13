@@ -46,4 +46,9 @@ export class MangaController {
             ),
         );
     }
+
+    @Get("updateAll")
+    async updateAll(): Promise<void> {
+        return await this.mangaService.updateAll();
+    }
 }
