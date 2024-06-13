@@ -136,6 +136,10 @@ export class Comick implements Partner {
                                     else if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
                                         comickMangaChapters[+chapter.chap] = chapter;
                                     }
+                                } else {
+                                    if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
+                                        comickMangaChapters[+chapter.chap] = chapter;
+                                    }
                                 }
                             }
                         )
