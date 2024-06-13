@@ -195,9 +195,6 @@ export class Comick implements Partner {
                 )
                 .then(
                     chapter => {
-                        if (mangaName === "") {
-                            mangaName = chapter.chapter.md_comics.title
-                        }
                         chaptersImagesMap.set(chapter.chapter.chap, chapter.chapter.md_images.map(image => Comick.IMAGE_URL + image.b2key));
                     },
                 );
@@ -247,6 +244,8 @@ export class Comick implements Partner {
                 partnerId: partnersInfo.partnerId,
                 partnerCode: partnersInfo.partnerCode
             }))
+
+            await new Promise(r => setTimeout(r, 250));
         }
 
         console.log('All mangas updated')
