@@ -87,6 +87,8 @@ export class Comick implements Partner {
         let totalNumberOfChapters = 1;
 
         let comickMangaChapters = {};
+        let comickMangaChapterIsOfficial = {};
+        let comickMangaChapterDate = {};
 
         if (!fs.existsSync('./downloads/' + mangaName)) {
             if (!fs.existsSync('./downloads')) {
@@ -129,16 +131,30 @@ export class Comick implements Partner {
                     mangaChapters => {
                         mangaChapters.forEach(
                             chapter => {
+                                //          "created_at": "2024-06-13T16:38:58+02:00",
+                                // 			"updated_at": "2024-06-13T22:57:25+02:00"
                                 if (chapter.group_name) {
                                     if (chapter.group_name.includes("Official")) {
+                                        if (comickMangaChapterIsOfficial[+chapter.chap] === true) {
+                                            let created_at = new Date(chapter.created_at);
+                                            if (created_at > comickMangaChapterDate[+chapter.chap]) {
+                                                comickMangaChapters[+chapter.chap] = chapter;
+                                                comickMangaChapterIsOfficial[+chapter.chap] = true;
+                                                comickMangaChapterDate[+chapter.chap] = created_at;
+                                            }
+                                        } else {
+                                            comickMangaChapters[+chapter.chap] = chapter;
+                                            comickMangaChapterIsOfficial[+chapter.chap] = true;
+                                            comickMangaChapterDate[+chapter.chap] = new Date(chapter.created_at);
+                                        }
+                                    } else if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
                                         comickMangaChapters[+chapter.chap] = chapter;
-                                    }
-                                    else if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
-                                        comickMangaChapters[+chapter.chap] = chapter;
+                                        comickMangaChapterIsOfficial[+chapter.chap] = false;
                                     }
                                 } else {
                                     if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
                                         comickMangaChapters[+chapter.chap] = chapter;
+                                        comickMangaChapterIsOfficial[+chapter.chap] = false;
                                     }
                                 }
                             }
@@ -154,6 +170,12 @@ export class Comick implements Partner {
 
         const ignore = fs.existsSync('./downloads/' + mangaName + '/ignore.txt') ? fs.readFileSync('./downloads/' + mangaName + '/ignore.txt').toString().split('\n') : []
 
+        fs.readdirSync('./downloads/' + mangaName).forEach(file => {
+            if (fs.lstatSync('./downloads/' + mangaName + '/' + file).isDirectory()) {
+                fs.rmSync('./downloads/' + mangaName + '/' + file, {recursive: true});
+            }
+        })
+
         for (let chapterNumber in comickMangaChapters) {
             let chapter = comickMangaChapters[chapterNumber];
             const query = '/chapter/' + chapter.hid + '/';
@@ -163,6 +185,10 @@ export class Comick implements Partner {
                     'Content-Type': 'application/json',
                 },
             };
+
+            if (fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap)) {
+                fs.rmSync('./downloads/' + mangaName + '/' + chapter.chap, {recursive: true});
+            }
 
             if (ignore.includes(chapter.chap)) {
                 console.log(mangaName + ' : chapter ' + chapter.chap + ' is ignored')
@@ -174,7 +200,7 @@ export class Comick implements Partner {
             }
 
             if (fs.existsSync('./downloads/' + mangaName)) {
-                let regex = new RegExp('^' + chapter.chap + '_[a-zA-Z0-9]+\.cbz$');
+                let regex = new RegExp('^' + chapter.chap + '_.+\.cbz$');
                 let files = fs.readdirSync('./downloads/' + mangaName);
                 for (let file of files) {
                     if (regex.test(file)) {
@@ -204,9 +230,8 @@ export class Comick implements Partner {
 
             let chapterImages = chaptersImagesMap.get(chapter.chap);
 
-            if (!fs.existsSync('./downloads/' + mangaName + '/' + chapter.chap)) {
-                fs.mkdirSync('./downloads/' + mangaName + '/' + chapter.chap);
-            }
+
+            fs.mkdirSync('./downloads/' + mangaName + '/' + chapter.chap);
 
             for (let image of chapterImages) {
                 const imageResponse = await fetch(image);
