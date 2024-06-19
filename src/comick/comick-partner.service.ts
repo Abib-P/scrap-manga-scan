@@ -11,7 +11,7 @@ import * as archiver from "archiver";
 import {ComickMangaInfo} from "./dto/manga_info/comick_manga_info";
 
 @Injectable()
-export class Comick implements Partner {
+export class ComickPartner implements Partner {
     private static readonly API_URL = "https://api.comick.fun";
     private static readonly IMAGE_URL = "https://meo3.comick.pictures/";
 
@@ -31,7 +31,7 @@ export class Comick implements Partner {
             },
         };
 
-        return await fetch(Comick.API_URL + query, options)
+        return await fetch(ComickPartner.API_URL + query, options)
             .then(response => response.json())
             .then(
                 data => {
@@ -66,7 +66,7 @@ export class Comick implements Partner {
 
         const query = '/comic/' + partnerInfo.partnerCode + '/';
 
-        await fetch(Comick.API_URL + query, options)
+        await fetch(ComickPartner.API_URL + query, options)
             .then(response => response.json())
             .then(
                 data => {
@@ -115,7 +115,7 @@ export class Comick implements Partner {
             UrlArguments.page = (actualChapter / 100 + 1).toString();
             const query = '/comic/' + mangaHid + '/chapters?' + new URLSearchParams(UrlArguments).toString();
 
-            await fetch(Comick.API_URL + query, options)
+            await fetch(ComickPartner.API_URL + query, options)
                 .then(response => response.json())
                 .then(
                     data => {
@@ -131,30 +131,46 @@ export class Comick implements Partner {
                     mangaChapters => {
                         mangaChapters.forEach(
                             chapter => {
-                                //          "created_at": "2024-06-13T16:38:58+02:00",
-                                // 			"updated_at": "2024-06-13T22:57:25+02:00"
-                                if (chapter.group_name) {
+                                if (chapter.group_name && chapter.group_name.length > 0) {
                                     if (chapter.group_name.includes("Official")) {
-                                        if (comickMangaChapterIsOfficial[+chapter.chap] === true) {
+                                        if (comickMangaChapterIsOfficial[+chapter.chap] === 'true') {
                                             let created_at = new Date(chapter.created_at);
                                             if (created_at > comickMangaChapterDate[+chapter.chap]) {
                                                 comickMangaChapters[+chapter.chap] = chapter;
-                                                comickMangaChapterIsOfficial[+chapter.chap] = true;
+                                                comickMangaChapterIsOfficial[+chapter.chap] = 'true';
                                                 comickMangaChapterDate[+chapter.chap] = created_at;
                                             }
                                         } else {
                                             comickMangaChapters[+chapter.chap] = chapter;
-                                            comickMangaChapterIsOfficial[+chapter.chap] = true;
+                                            comickMangaChapterIsOfficial[+chapter.chap] = 'true';
                                             comickMangaChapterDate[+chapter.chap] = new Date(chapter.created_at);
                                         }
-                                    } else if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
-                                        comickMangaChapters[+chapter.chap] = chapter;
-                                        comickMangaChapterIsOfficial[+chapter.chap] = false;
+                                    } else if (!chapter.chap.includes('.') && chapter.chap !== "0" && comickMangaChapterIsOfficial[+chapter.chap] !== 'true') {
+                                        if (comickMangaChapterIsOfficial[+chapter.chap] === 'group') {
+                                            let created_at = new Date(chapter.created_at);
+                                            if (created_at > comickMangaChapterDate[+chapter.chap]) {
+                                                comickMangaChapters[+chapter.chap] = chapter;
+                                                comickMangaChapterIsOfficial[+chapter.chap] = 'group';
+                                                comickMangaChapterDate[+chapter.chap] = created_at;
+                                            }
+                                        } else {
+                                            comickMangaChapters[+chapter.chap] = chapter;
+                                            comickMangaChapterIsOfficial[+chapter.chap] = 'group';
+                                            comickMangaChapterDate[+chapter.chap] = new Date(chapter.created_at);
+                                        }
                                     }
                                 } else {
                                     if (comickMangaChapters[+chapter.chap] === undefined && !chapter.chap.includes('.') && chapter.chap !== "0") {
                                         comickMangaChapters[+chapter.chap] = chapter;
-                                        comickMangaChapterIsOfficial[+chapter.chap] = false;
+                                        comickMangaChapterIsOfficial[+chapter.chap] = 'false';
+                                        comickMangaChapterDate[+chapter.chap] = new Date(chapter.created_at);
+                                    } else if (comickMangaChapterIsOfficial[+chapter.chap] === 'false' && !chapter.chap.includes('.') && chapter.chap !== "0") {
+                                        let created_at = new Date(chapter.created_at);
+                                        if (created_at > comickMangaChapterDate[+chapter.chap]) {
+                                            comickMangaChapters[+chapter.chap] = chapter;
+                                            comickMangaChapterIsOfficial[+chapter.chap] = 'false';
+                                            comickMangaChapterDate[+chapter.chap] = created_at;
+                                        }
                                     }
                                 }
                             }
@@ -210,7 +226,7 @@ export class Comick implements Partner {
                 }
             }
 
-            await fetch(Comick.API_URL + query, options)
+            await fetch(ComickPartner.API_URL + query, options)
                 .then(response =>
                     response.json()
                 )
@@ -221,7 +237,7 @@ export class Comick implements Partner {
                 )
                 .then(
                     chapter => {
-                        chaptersImagesMap.set(chapter.chapter.chap, chapter.chapter.md_images.map(image => Comick.IMAGE_URL + image.b2key));
+                        chaptersImagesMap.set(chapter.chapter.chap, chapter.chapter.md_images.map(image => ComickPartner.IMAGE_URL + image.b2key));
                     },
                 );
 

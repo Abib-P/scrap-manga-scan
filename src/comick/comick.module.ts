@@ -1,12 +1,12 @@
 import {Module} from '@nestjs/common';
-import {Comick} from "./comick";
+import {ComickPartner} from "./comick-partner.service";
 import {Partner} from "../common/partner/partner";
 
 @Module({
     providers: [
         {
             provide: Partner,
-            useClass: Comick,
+            useClass: ComickPartner,
         }
     ],
     exports : [Partner]
