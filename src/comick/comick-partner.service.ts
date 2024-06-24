@@ -10,6 +10,12 @@ import * as fs from "node:fs";
 import * as archiver from "archiver";
 import {ComickMangaInfo} from "./dto/manga_info/comick_manga_info";
 
+class PartnersInfo {
+    partnerId: string;
+    partnerCode: string;
+    mangaName: string;
+}
+
 @Injectable()
 export class ComickPartner implements Partner {
     private static readonly API_URL = "https://api.comick.fun";
@@ -81,6 +87,29 @@ export class ComickPartner implements Partner {
 
         mangaName = mangaName.replace(/\//g, ' ');
 
+        if (fs.existsSync('./downloads/')) {
+            let partnersInfo = fs.readdirSync('./downloads').map(mangaName => {
+                if (fs.existsSync('./downloads/' + mangaName + '/partnersInfo.json')) {
+                    return JSON.parse(fs.readFileSync('./downloads/' + mangaName + '/partnersInfo.json').toString());
+                }
+                return null
+            }).filter(partnerInfo => partnerInfo !== null) as PartnersInfo[];
+
+            for (let partnerInfoStored of partnersInfo) {
+                if (partnerInfoStored.partnerId === partnerInfo.partnerId && partnerInfoStored.partnerCode === partnerInfo.partnerCode && partnerInfoStored.mangaName !== mangaName) {
+                    throw new Error('Partner info already exists. New manga name ' + mangaName + ' and stored manga name ' + partnerInfoStored.mangaName);
+                    //todo: add a way to update the manga with the new partner info
+                }
+            }
+        }
+
+        if (!fs.existsSync('./downloads/' + mangaName)) {
+            if (!fs.existsSync('./downloads')) {
+                fs.mkdirSync('./downloads');
+            }
+            fs.mkdirSync('./downloads/' + mangaName);
+        }
+
         console.log('Downloading: ' + mangaName)
 
         let actualChapter = 0;
@@ -90,12 +119,6 @@ export class ComickPartner implements Partner {
         let comickMangaChapterIsOfficial = {};
         let comickMangaChapterDate = {};
 
-        if (!fs.existsSync('./downloads/' + mangaName)) {
-            if (!fs.existsSync('./downloads')) {
-                fs.mkdirSync('./downloads');
-            }
-            fs.mkdirSync('./downloads/' + mangaName);
-        }
 
         if (fs.existsSync('./downloads/' + mangaName + '/partnersInfo.json')) {
             let partnersInfo = JSON.parse(fs.readFileSync('./downloads/' + mangaName + '/partnersInfo.json').toString());
@@ -242,7 +265,7 @@ export class ComickPartner implements Partner {
                 );
 
             await new Promise(r => setTimeout(r, 100));
-            console.log('Downloading: ' + chapterNumber)
+            console.log('Downloading: ' + mangaName + ' : chapter ' + chapter.chap)
 
             let chapterImages = chaptersImagesMap.get(chapter.chap);
 
