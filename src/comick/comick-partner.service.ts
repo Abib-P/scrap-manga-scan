@@ -52,7 +52,10 @@ export class ComickPartner implements Partner {
             );
     }
 
+    //todo ameliorer la gestion des erreurs avec retry et meilleurs logs lors d'erreur
+    //todo renvoyer une 2XX response au moment de l'appel puis lancer dans un thread le telechargement
     async download(partnerInfo: PartnerInfo): Promise<Manga> {
+        //todo decider d'un id de manga
         let UrlArguments = {
             page: '1',
             lang: 'en',
@@ -110,7 +113,7 @@ export class ComickPartner implements Partner {
             fs.mkdirSync('./downloads/' + mangaName);
         }
 
-        console.log('Downloading: ' + mangaName)
+        console.log('' + mangaName)
 
         let actualChapter = 0;
         let totalNumberOfChapters = 1;
