@@ -76,7 +76,7 @@ export class ComickPartner implements Partner {
 
         const query = '/comic/' + partnerInfo.partnerCode + '/';
 
-        await fetch(ComickPartner.API_URL + query, options)
+        await fetch(ComickPartner.API_URL + query, options) //todo gerer les erreurs au cas ou le manga a changer d'id (déjà eu le cas)
             .then(response => response.json())
             .then(
                 data => {
