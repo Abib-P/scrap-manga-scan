@@ -54,6 +54,7 @@ export class ComickPartner implements Partner {
 
     //todo ameliorer la gestion des erreurs avec retry et meilleurs logs lors d'erreur
     //todo renvoyer une 2XX response au moment de l'appel puis lancer dans un thread le telechargement
+    //todo faut-it supprimer les chapitre qui ne sont plus present sur le site ? (j'ai eu le cas qui supprimait des chapitres .5)
     async download(partnerInfo: PartnerInfo): Promise<Manga> {
         //todo decider d'un id de manga
         let UrlArguments = {
