@@ -56,6 +56,7 @@ export class ComickPartner implements Partner {
     //todo renvoyer une 2XX response au moment de l'appel puis lancer dans un thread le telechargement
     //todo faut-it supprimer les chapitre qui ne sont plus present sur le site ? (j'ai eu le cas qui supprimait des chapitres .5)
     async download(partnerInfo: PartnerInfo): Promise<Manga> {
+        console.log(partnerInfo)
         //todo decider d'un id de manga
         let UrlArguments = {
             page: '1',
@@ -74,7 +75,7 @@ export class ComickPartner implements Partner {
         let mangaName: string = "";
         let mangaHid: string = "";
 
-        const query = '/comic/' + partnerInfo.partnerCode + '/';
+        const query = '/comic/' + partnerInfo.partnerCode;
 
         await fetch(ComickPartner.API_URL + query, options) //todo gerer les erreurs au cas ou le manga a changer d'id (déjà eu le cas)
             .then(response => response.json())
@@ -113,8 +114,6 @@ export class ComickPartner implements Partner {
             }
             fs.mkdirSync('./downloads/' + mangaName);
         }
-
-        console.log('' + mangaName)
 
         let actualChapter = 0;
         let totalNumberOfChapters = 1;
