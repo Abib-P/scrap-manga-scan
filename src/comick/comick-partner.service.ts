@@ -14,6 +14,7 @@ class PartnersInfo {
     partnerId: string;
     partnerCode: string;
     mangaName: string;
+    // todo integrer un nom de folder ou custom name pour l'enregistrer et ne plus y toucher
 }
 
 @Injectable()
